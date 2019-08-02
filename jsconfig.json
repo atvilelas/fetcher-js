@@ -1,0 +1,1 @@
+{"compilerOptions":{"module":"es6","baseUrl":"./","paths":{"@/*":["/Users/atvilelas/Documents/Development/react/components.react.table/src/*"],"@Components/*":["/Users/atvilelas/Documents/Development/react/components.react.table/src/components/*"],"@Constants/*":["/Users/atvilelas/Documents/Development/react/components.react.table/src/constants/*"]}}}
