@@ -1,6 +1,6 @@
 {
-  "name": "fetcher.js",
-  "version": "0.0.1",
+  "name": "fetcher-js",
+  "version": "0.0.2",
   "description": "Fetch Component for react",
   "main": "index.js",
   "scripts": {
@@ -27,15 +27,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/atvilelas/fetcher.js.git"
+    "url": "git+https://github.com/atvilelas/fetcher-js.git"
   },
   "keywords": [],
   "author": "Andre Vilela <atvilelas@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/atvilelas/fetcher.js/issues"
+    "url": "https://github.com/atvilelas/fetcher-js/issues"
   },
-  "homepage": "https://github.com/atvilelas/fetcher.js#readme",
+  "homepage": "https://github.com/atvilelas/fetcher-js#readme",
   "devDependencies": {
     "@babel/core": "7.4.5",
     "@babel/node": "7.4.5",

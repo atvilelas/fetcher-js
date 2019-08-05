@@ -1,1 +1,1 @@
-import './Table.stories';
+import './Fetcher.stories';
