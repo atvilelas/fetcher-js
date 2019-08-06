@@ -20,5 +20,10 @@ storiesOf('Fetcher', module)
         }, 1000);
       })
     );
-    return <Fetcher promisor={promisor} />;
+    return (
+      <Fetcher promisor={promisor}>
+        <Fetcher.Before>It starts</Fetcher.Before>
+        <Fetcher.Resolved>Done</Fetcher.Resolved>
+      </Fetcher>
+    );
   });
