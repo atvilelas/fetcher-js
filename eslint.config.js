@@ -62,7 +62,7 @@ const eslintRC = {
 
 
 function updateEslintRC() {
-  fs.writeFile('.eslintrc', JSON.stringify(eslintRC), 'utf8', () => null);
+  fs.writeFile('.eslintrc', JSON.stringify(eslintRC, undefined, 2), 'utf8', () => null);
 }
 
 updateEslintRC();

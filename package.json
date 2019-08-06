@@ -11,8 +11,8 @@
     "test": "jest --verbose --passWithNoTests",
     "storybook": "npm-run-all build --parallel build-watch start-storybook",
     "start-storybook": "start-storybook --port 30000",
-    "update-vscode": "babel-node ./vscode.webpack.js",
-    "update-eslint": "babel-node ./eslint.webpack.js"
+    "update-vscode": "babel-node ./vscode.config.js",
+    "update-eslint": "babel-node ./eslint.config.js"
   },
   "jest": {
     "transform": {

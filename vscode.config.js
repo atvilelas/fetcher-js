@@ -16,7 +16,7 @@ function updateVSCodeConfig() {
 
   vsCodeConfig.compilerOptions.paths = paths;
 
-  fs.writeFile('jsconfig.json', JSON.stringify(vsCodeConfig), 'utf8', () => null);
+  fs.writeFile('jsconfig.json', JSON.stringify(vsCodeConfig, undefined, 2), 'utf8', () => null);
 }
 
 updateVSCodeConfig();
