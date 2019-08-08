@@ -1,124 +1,115 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-class Before extends Component {
-  static propTypes = {
-    children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
-    processing: PropTypes.bool.isRequired,
-    pending: PropTypes.bool.isRequired,
-    resolved: PropTypes.bool.isRequired,
-    rejected: PropTypes.bool.isRequired,
-    processed: PropTypes.bool.isRequired
-  };
+import Begin from '@Components/renderers/Begin';
+import Pending from '@Components/renderers/Pending';
+import Resolved from '@Components/renderers/Resolved';
+import Rejected from '@Components/renderers/Rejected';
+import Settled from '@Components/renderers/Settled';
 
-  render() {
-    const {
-      processing,
-      pending,
-      resolved,
-      rejected,
-      processed
-    } = this.props;
-
-    if (processing || pending || resolved || rejected || processed) {
-      return null;
-    }
-
-    return <div>Before: {this.props.children}</div>;
-  }
-}
-
-class Resolved extends Component {
-  static propTypes = {
-    children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
-    processing: PropTypes.bool.isRequired,
-    pending: PropTypes.bool.isRequired,
-    resolved: PropTypes.bool.isRequired,
-    rejected: PropTypes.bool.isRequired,
-    processed: PropTypes.bool.isRequired
-  };
-
-  render() {
-    const {
-      processing,
-      pending,
-      resolved,
-      rejected
-    } = this.props;
-
-    if (processing || pending || !resolved || rejected) {
-      return null;
-    }
-
-    return <div>Resolved: {this.props.children}</div>;
-  }
-}
+const noOperation = () => undefined;
 
 const fetcherFactory = () => {
-  const { Provider, Consumer } = React.createContext();
+  const Context = React.createContext();
+  Context.displayName = 'Fetcher';
+
+  const { Provider, Consumer } = Context;
+
   class Fetcher extends Component {
     static propTypes = {
       children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
-      promisor: PropTypes.func.isRequired
+      promisor: PropTypes.func.isRequired,
+      defer: PropTypes.bool,
+
+      onStart: PropTypes.func,
+      onPending: PropTypes.func,
+      onResolve: PropTypes.func,
+      onReject: PropTypes.func,
+      onSettle: PropTypes.func
+    };
+
+    static defaultProps = {
+      defer: false,
+
+      // Events
+      onStart: noOperation,
+      onPending: noOperation,
+      onResolve: noOperation,
+      onReject: noOperation,
+      onSettle: noOperation
     };
 
     constructor(props) {
       super(props);
 
       this.state = {
-        processing: false,
         pending: false,
         resolved: false,
         rejected: false,
-        processed: false,
-        data: null,
+        result: null,
         error: null
       };
 
-      this.setPromise = this.setPromise.bind(this);
+      this.getPromise = this.getPromise.bind(this);
       this.hasMounted = false;
     }
 
     componentDidMount() {
       this.hasMounted = true;
-      this.setPromise();
+      if (!this.props.defer) {
+        this.props.onStart();
+        this.getPromise();
+      }
     }
 
-    setPromise() {
+    componentDidUpdate(prevProps) {
+      if (this.props.defer === false && prevProps.defer) {
+        this.props.onStart();
+        this.getPromise();
+      }
+    }
+
+    getPromise = () => {
       this.promise = this.props.promisor();
+      this.props.onPending(this.promise, this.state);
       this.setState(
         {
-          processing: true,
           pending: true,
           resolved: false,
           rejected: false,
-          processed: false,
-          data: null,
+          settled: false,
+          result: null,
           error: null
         },
         () => {
           this.promise
             .then((...args) => {
-              this.setState({
-                processing: false,
+              const updatedState = {
                 pending: false,
                 resolved: true,
                 rejected: false,
-                processed: true,
-                data: args,
+                settled: true,
+                result: args,
                 error: null
+              };
+              this.props.onResolve(this.promise, updatedState);
+              this.setState(updatedState, () => {
+                this.props.onSettle(this.promise, this.state);
               });
               return args;
             })
             .catch((error) => {
-              this.setState({
-                processing: false,
+              const updatedState = {
                 pending: false,
                 resolved: false,
                 rejected: true,
-                processed: true,
-                data: null,
+                settled: true,
+                result: null,
                 error
+              };
+              this.props.onReject(this.promise, updatedState);
+              this.setState(updatedState, () => {
+                this.props.onSettle(this.promise, this.state);
               });
               return error;
             });
@@ -135,11 +126,24 @@ const fetcherFactory = () => {
     }
   }
 
-  const BeforeConsumer = props => <Consumer>{state => <Before {...props} {...state} />}</Consumer>;
+  const BeginConsumer = props => <Consumer>{state => <Begin {...props} {...state} />}</Consumer>;
+  const PendingConsumer = props => <Consumer>{state => <Pending {...props} {...state} />}</Consumer>;
   const ResolvedConsumer = props => <Consumer>{state => <Resolved {...props} {...state} />}</Consumer>;
+  const RejectedConsumer = props => <Consumer>{state => <Rejected {...props} {...state} />}</Consumer>;
+  const SettledConsumer = props => <Consumer>{state => <Settled {...props} {...state} />}</Consumer>;
 
-  Fetcher.Before = BeforeConsumer;
+  BeginConsumer.displayName = 'Begin';
+  PendingConsumer.displayName = 'Pending';
+  ResolvedConsumer.displayName = 'Resolved';
+  RejectedConsumer.displayName = 'Rejected';
+  SettledConsumer.displayName = 'Settled';
+
+  Fetcher.Begin = BeginConsumer;
+  Fetcher.Pending = PendingConsumer;
   Fetcher.Resolved = ResolvedConsumer;
+  Fetcher.Rejected = RejectedConsumer;
+  Fetcher.Settled = SettledConsumer;
+
   return Fetcher;
 };
 
